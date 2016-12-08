@@ -1,0 +1,14 @@
+db:
+ image: postgres
+ environment:
+ — POSTGRESQL_DB=adit_api_dev
+ — POSTGRESQL_USER=postgres
+ — POSTGRESQL_PASS=password
+web:
+ build: .
+ ports:
+ — “49235:4000”
+ links:
+ — db:dockerdb
+ volumes:
+ — .:/app
