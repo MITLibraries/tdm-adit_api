@@ -25,7 +25,7 @@ config :phoenix, :stacktrace_depth, 20
 config :adit_api, AditApi.Repo,
   adapter: Ecto.Adapters.Postgres,
   username: "postgres",
-  password: "password",
+  password: System.get_env("POSTGRES_PASSWORD"),
   database: "adit_api_dev",
   hostname: System.get_env("POSTGRES_SERVICE_HOST"),
   pool_size: 10
