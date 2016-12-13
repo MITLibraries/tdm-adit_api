@@ -6,8 +6,6 @@ otp_release:
 sudo: false
 env:
   - MIX_ENV=test
-  - POSTGRES_PASSWORD=""
-  - POSTGRES_SERVICE_HOST="localhost"
 notifications:
   email: false
 addons:
