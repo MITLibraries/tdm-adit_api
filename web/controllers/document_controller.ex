@@ -17,8 +17,9 @@ defmodule AditApi.DocumentController do
       nil ->
         conn |> put_status(404) |> json(%{text: "not found"})
       doc ->
-        # TBD - look up in F4 from ref, get text info
-        json conn, %{ref: doc.ref}
+        doc_url = Application.get_env(:adit_api, :repo_svc) <> "/theses/" <> doc.ref
+        body = HTTPoison.get!(doc_url).body
+        conn |> put_resp_content_type("text/plain") |> send_resp(200, body)
     end
   end
 end
