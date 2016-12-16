@@ -37,10 +37,10 @@ defmodule AditApi.DocsetController do
       # now perform the index query to get the document list (TODO)
       # just use a few known objects for test
       docRefs = [
-        "http://104.196.183.33:8080/fcrepo/rest/theses/1721.1-39170/1721.1-39170.txt",
-        "http://104.196.183.33:8080/fcrepo/rest/theses/1721.1-39154/1721.1-39154.txt",
-        "http://104.196.183.33:8080/fcrepo/rest/theses/1721.1-81081/1721.1-81081.txt",
-        "http://104.196.183.33:8080/fcrepo/rest/theses/1721.1-42344/1721.1-42344.txt"
+        "1721.1-39170/1721.1-39170.txt",
+        "1721.1-39154/1721.1-39154.txt",
+        "1721.1-81081/1721.1-81081.txt",
+        "1721.1-42344/1721.1-42344.txt"
       ]
 
       case Repo.insert(changeset) do
@@ -153,7 +153,8 @@ defmodule AditApi.DocsetController do
   defp write_doc(doc, tmp_dir) do
     base_name = String.slice(doc.ref, -9..-1)
     doc_file = Path.absname(base_name, tmp_dir)
-    body = HTTPoison.get!(doc.ref).body
+    doc_url = Application.get_env(:adit_api, :repo_svc) <> "/theses/" <> doc.ref
+    body = HTTPoison.get!(doc_url).body
     {:ok, file} = File.open(doc_file, [:write])
     IO.binwrite(file, body)
     File.close(file)

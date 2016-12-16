@@ -11,9 +11,16 @@ defmodule AditApi.CollectionController do
 
   def schema(conn, %{"id" => id}), do: render conn, "schema.json", id: id
 
-  def search(conn, %{"id" => id}) do
-    # TB implemented
-    render conn, "search.json", id: id
+  def search(conn, %{"id" => id, "query" => query}) do
+    # construct a query to indexing service from user query
+    # setting size to 0 to suppress all but hit count in the response
+    index_query = Poison.encode!(%{
+      query: query,
+      size: 0
+    })
+    index_url = Application.get_env(:adit_api, :index_svc) <> ":9200/theses/_search"
+    resp = Poison.decode!(HTTPoison.post!(index_url, index_query).body)
+    render conn, "search.json", id: id, hits: resp["hits"]["total"]
   end
 
   def watch(conn, %{"id" => id}) do

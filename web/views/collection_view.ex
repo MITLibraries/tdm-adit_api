@@ -28,16 +28,17 @@ defmodule AditApi.CollectionView do
         author: %{type: "string"},
         advisor: %{type: "string"},
         degree: %{type: "string"},
+        issue_date: %{type: "string"},
         abstract: %{type: "string"},
         text: %{type: "string"}
       },
-      required: ["title", "author", "degree", "advisor", "abstract"]
+      required: ["title", "author", "degree", "advisor", "issue_date", "abstract"]
     }
   end
 
-  def render("search.json", %{id: id}) do
+  def render("search.json", %{id: id, hits: hits}) do
     %{
-      hits: 42
+      hits: hits
     }
   end
 

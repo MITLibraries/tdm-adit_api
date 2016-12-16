@@ -7,7 +7,9 @@ use Mix.Config
 
 # General application configuration
 config :adit_api,
-  ecto_repos: [AditApi.Repo]
+  ecto_repos: [AditApi.Repo],
+  index_svc: System.get_env("ELASTICSEARCH_SERVICE_HOST"),
+  repo_svc: System.get_env("FEDORA_SERVICE_HOST")
 
 # Configures the endpoint
 config :adit_api, AditApi.Endpoint,
