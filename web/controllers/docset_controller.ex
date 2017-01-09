@@ -34,14 +34,17 @@ defmodule AditApi.DocsetController do
         owner: key
       }
       changeset = Docset.changeset(%Docset{}, docset_params)
-      # now perform the index query to get the document list (TODO)
-      # just use a few known objects for test
-      docRefs = [
-        "1721.1-39170/1721.1-39170.txt",
-        "1721.1-39154/1721.1-39154.txt",
-        "1721.1-81081/1721.1-81081.txt",
-        "1721.1-42344/1721.1-42344.txt"
-      ]
+      # now perform the index query to get the list of documents
+      # setting _source to only retrieve the uri field for efficiency
+      index_query = Poison.encode!(%{
+        query: query,
+        _source: ["uri"]
+      })
+      index_url = Application.get_env(:adit_api, :index_svc) <> ":9200/theses/_search"
+      resp = Poison.decode!(HTTPoison.post!(index_url, index_query).body)
+      docRefs = resp["hits"]["hits"]
+      |> Enum.map(fn h -> h["_source"]["uri"] end)
+      |> Enum.map(fn u -> hd(Enum.reverse(String.split(u, "/"))) end)
 
       case Repo.insert(changeset) do
         {:ok, docset} ->
