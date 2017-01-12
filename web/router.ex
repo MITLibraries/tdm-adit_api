@@ -2,7 +2,7 @@ defmodule AditApi.Router do
   use AditApi.Web, :router
 
   pipeline :api do
-    plug :accepts, ["json"]
+    plug :accepts, ["json", "pdf", "text"]
   end
 
   scope "/api", AditApi do

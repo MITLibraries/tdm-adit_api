@@ -128,7 +128,9 @@ defmodule AditApi.DocsetController do
     end
   end
 
-  def dump(conn, %{"id" => id}) do
+  def dump(conn, params) do
+    id = Dict.get(params, "id")
+    formats = String.split(Dict.get(params, "fmts", "txt"), ",")
     case Repo.get(Docset, id) do
       nil ->
         conn |> put_status(404) |> json(%{dump: "not found"})
@@ -141,7 +143,7 @@ defmodule AditApi.DocsetController do
           # requires file-to-file copy, not stream-to-file. Thus,
           # we require not quite 2X scratch disk space
           tmp_dir = System.tmp_dir
-          doc_files = Enum.map(ldocset.documents, fn doc -> write_doc(doc, tmp_dir) end)
+          doc_files = Enum.concat(Enum.map(formats, fn fmt -> write_fmt(ldocset.documents, fmt, tmp_dir) end))
           arch_path = Path.absname(ldocset.name, tmp_dir)
           :zip.zip(to_charlist(arch_path), doc_files, cwd: tmp_dir) # Erlang!
           # clean up the loose files
@@ -153,10 +155,30 @@ defmodule AditApi.DocsetController do
     end
   end
 
-  defp write_doc(doc, tmp_dir) do
-    base_name = String.slice(doc.ref, -9..-1)
+  defp write_fmt(documents, format, tmp_dir) do
+    case format do
+      "meta" -> Enum.map(documents, fn doc -> write_meta(doc, tmp_dir) end)
+      _ -> Enum.map(documents, fn doc -> write_doc(doc, format, tmp_dir) end)
+    end
+  end
+
+  defp write_meta(doc, tmp_dir) do
+    base_name = doc.ref <> ".json"
     doc_file = Path.absname(base_name, tmp_dir)
-    doc_url = Application.get_env(:adit_api, :repo_svc) <> "/theses/" <> doc.ref
+    doc_url = Application.get_env(:adit_api, :repo_svc) <>
+       ":8080/fcrepo/rest/theses/" <> doc.ref
+    body = HTTPoison.get!(doc_url, %{"Accept" => "application/ld+json"}).body
+    {:ok, file} = File.open(doc_file, [:write])
+    IO.binwrite(file, body)
+    File.close(file)
+    to_charlist(Path.basename(doc_file))
+  end
+
+  defp write_doc(doc, format, tmp_dir) do
+    base_name = doc.ref <> "." <> format
+    doc_file = Path.absname(base_name, tmp_dir)
+    doc_url = Application.get_env(:adit_api, :repo_svc) <>
+       ":8080/fcrepo/rest/theses/" <> doc.ref <> "/" <> doc.ref <> "." <> format
     body = HTTPoison.get!(doc_url).body
     {:ok, file} = File.open(doc_file, [:write])
     IO.binwrite(file, body)

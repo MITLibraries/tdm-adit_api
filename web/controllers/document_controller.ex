@@ -19,10 +19,14 @@ defmodule AditApi.DocumentController do
       nil ->
         conn |> put_status(404) |> json(%{text: "not found"})
       doc ->
+        format = case List.first(get_req_header(conn, "accept")) do
+          "application/pdf" -> {".pdf", "application/pdf"}
+          _ -> {".txt", "text/plain"}
+        end
         doc_url = Application.get_env(:adit_api, :repo_svc) <>
-                 ":8080/fcrepo/rest/theses/" <> doc.ref <> "/" <> doc.ref <> ".txt"
+                 ":8080/fcrepo/rest/theses/" <> doc.ref <> "/" <> doc.ref <> elem(format, 0)
         body = HTTPoison.get!(doc_url).body
-        conn |> put_resp_content_type("text/plain") |> send_resp(200, body)
+        conn |> put_resp_content_type(elem(format, 1)) |> send_resp(200, body)
     end
   end
 end
