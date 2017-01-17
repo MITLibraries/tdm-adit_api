@@ -37,6 +37,7 @@ defmodule AditApi.Mixfile do
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:httpoison, "~> 0.10.0"},
+     {:cors_plug, "~> 1.1"},
      {:distillery, "~> 1.0"}]
   end
 
