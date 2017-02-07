@@ -9,7 +9,8 @@ use Mix.Config
 config :adit_api,
   ecto_repos: [AditApi.Repo],
   index_svc: System.get_env("ELASTICSEARCH_SERVICE_HOST"),
-  repo_svc: System.get_env("FEDORA_SERVICE_HOST")
+  repo_svc: System.get_env("FEDORA_SERVICE_HOST"),
+  rl_policy: System.get_env("RATE_LIMIT_POLICY")
 
 # Configures the endpoint
 config :adit_api, AditApi.Endpoint,

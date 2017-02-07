@@ -36,7 +36,11 @@ defmodule AditApi.Endpoint do
     key: "_adit_api_key",
     signing_salt: "NAa/cp49"
 
-  plug CORSPlug
+  plug CORSPlug,
+    headers: ["Authorization", "Content-Type", "Accept", "Origin",
+              "User-Agent", "DNT","Cache-Control", "X-Api-Key",
+              "Keep-Alive", "X-Requested-With", "If-Modified-Since",
+              "X-CSRF-Token"]
 
   plug AditApi.Router
 end
